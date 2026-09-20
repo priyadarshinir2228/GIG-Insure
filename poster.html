@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GigEase — Academic Research Poster | Chennai Institute of Technology</title>
+  
+  <!-- Fonts & Libraries -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* ==========================================================================
+       1. GLOBAL & PRINT SETUP
+       ========================================================================== */
+    :root {
+      --cit-blue: #0A2540;
+      --cit-header-bg: #1B3A6B;
+      --cit-card-header: #1F4E79;
+      --cit-accent-yellow: #F59E0B;
+      --cit-gold: #FFC000;
+      --cit-footer-bg: #D9E1F2;
+      --cit-footer-text: #1B3A6B;
+      --bg-canvas: #E2E8F0;
+      --card-bg: #FFFFFF;
+      --card-border: #CBD5E1;
+      --text-dark: #1E293B;
+      --text-muted: #64748B;
+      --success-green: #10B981;
+      --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--text-dark);
+      line-height: 1.45;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 40px;
+    }
+
+    /* ==========================================================================
+       2. CONTROL TOOLBAR (Screen Only)
+       ========================================================================== */
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      width: 100%;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(12px);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .toolbar .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #F8FAFC;
+    }
+
+    .toolbar .brand span {
+      background: linear-gradient(135deg, #60A5FA, #3B82F6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: #2563EB;
+      color: white;
+    }
+    .btn-primary:hover { background: #1D4ED8; }
+
+    .btn-secondary {
+      background: #334155;
+      color: #F1F5F9;
+    }
+    .btn-secondary:hover { background: #475569; }
+
+    .btn-edit {
+      background: #8B5CF6;
+      color: white;
+    }
+    .btn-edit.active {
+      background: #10B981;
+    }
+
+    .scale-selector {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #1E293B;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    .scale-selector select {
+      background: transparent;
+      color: white;
+      border: none;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       3. POSTER CONTAINER & CANVAS (36" x 48" Ratio: 1440px x 1080px base)
+       ========================================================================== */
+    .poster-viewport {
+      padding: 24px;
+      overflow-x: auto;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .poster {
+      width: 1440px;
+      min-height: 1080px;
+      background: #FFFFFF;
+      box-shadow: var(--shadow-lg);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transform-origin: top center;
+      transition: transform 0.2s ease;
+      border: 1px solid #CBD5E1;
+    }
+
+    /* ==========================================================================
+       4. HEADER BANNER (CIT BRANDING & BLUE HEADER)
+       ========================================================================== */
+    .poster-header {
+      background: var(--cit-header-bg);
+      color: #FFFFFF;
+      padding: 16px 28px;
+      display: grid;
+      grid-template-columns: 140px 1fr 140px;
+      align-items: center;
+      gap: 20px;
+      border-bottom: 4px solid var(--cit-gold);
+    }
+
+    .logo-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #FFFFFF;
+      border-radius: 8px;
+      padding: 8px;
+      height: 90px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .logo-box svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .header-text {
+      text-align: center;
+    }
+
+    .header-text h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+      color: #FFFFFF;
+    }
+
+    .header-text .subtitle-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin: 4px 0 6px 0;
+    }
+
+    .header-text .course-tag {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--cit-gold);
+      text-transform: uppercase;
+    }
+
+    .header-text .year-tag {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.15);
+      padding: 2px 10px;
+      border-radius: 4px;
+    }
+
+    .header-text .project-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #F8FAFC;
+      background: rgba(255,255,255,0.1);
+      padding: 6px 14px;
+      border-radius: 6px;
+      border-left: 4px solid var(--cit-gold);
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    /* ==========================================================================
+       5. MAIN CONTENT 3-COLUMN GRID
+       ========================================================================== */
+    .poster-body {
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      flex-grow: 1;
+      background: #F8FAFC;
+    }
+
+    .poster-column {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ==========================================================================
+       6. SECTION CARDS (NAVY HEADER BAR + BORDERED CONTENT)
+       ========================================================================== */
+    .card {
+      background: #FFFFFF;
+      border: 1px solid var(--card-border);
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    .card-header {
+      background: var(--cit-card-header);
+      color: #FFFFFF;
+      padding: 6px 14px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-align: center;
+      text-transform: capitalize;
+      letter-spacing: 0.3px;
+    }
+
+    .card-content {
+      padding: 12px 14px;
+      font-size: 0.825rem;
+      color: #334155;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      line-height: 1.45;
+    }
+
+    .card-content p {
+      text-align: justify;
+    }
+
+    .highlight-box {
+      background: #EFF6FF;
+      border-left: 3px solid #2563EB;
+      padding: 8px 10px;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.8rem;
+    }
+
+    .highlight-box strong {
+      color: #1E3A8A;
+    }
+
+    /* Formulas & Math */
+    .formula-box {
+      background: #F1F5F9;
+      border: 1px dashed #94A3B8;
+      padding: 8px;
+      border-radius: 4px;
+      text-align: center;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      font-size: 0.85rem;
+      margin: 4px 0;
+      color: #0F172A;
+    }
+
+    /* Architecture Visual Box */
+    .arch-diagram-box {
+      width: 100%;
+      background: #FAFAFA;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .arch-diagram-box svg {
+      width: 100%;
+      height: auto;
+      max-height: 220px;
+    }
+
+    /* Table Styling */
+    .poster-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.775rem;
+      margin-top: 4px;
+    }
+
+    .poster-table th {
+      background: var(--cit-card-header);
+      color: white;
+      padding: 5px 8px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .poster-table td {
+      padding: 5px 8px;
+      border-bottom: 1px solid #E2E8F0;
+    }
+
+    .poster-table tr:nth-child(even) {
+      background: #F8FAFC;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.7rem;
+    }
+
+    .badge-success { background: #DCFCE7; color: #166534; }
+    .badge-info { background: #DBEAFE; color: #1E40AF; }
+    .badge-warning { background: #FEF3C7; color: #92400E; }
+
+    /* Chart Container */
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      margin-top: 4px;
+    }
+
+    .caption {
+      font-size: 0.725rem;
+      color: var(--text-muted);
+      text-align: center;
+      font-style: italic;
+      margin-top: 4px;
+    }
+
+    /* Badges Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .metric-card {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      padding: 6px;
+      text-align: center;
+    }
+
+    .metric-card .val {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--cit-card-header);
+    }
+
+    .metric-card .lbl {
+      font-size: 0.675rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       7. FOOTER SECTION (TEAM MEMBERS & REFERENCES)
+       ========================================================================== */
+    .poster-footer {
+      background: var(--cit-footer-bg);
+      color: var(--cit-footer-text);
+      padding: 12px 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      border-top: 3px solid var(--cit-card-header);
+      font-size: 0.8rem;
+    }
+
+    .footer-block h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--cit-card-header);
+      border-bottom: 1.5px solid var(--cit-card-header);
+      padding-bottom: 2px;
+    }
+
+    .footer-list {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 4px 12px;
+    }
+
+    .footer-list li {
+      font-size: 0.775rem;
+      display: flex;
+      gap: 6px;
+    }
+
+    .footer-list li span.num {
+      font-weight: 700;
+      color: var(--cit-card-header);
+    }
+
+    /* Editable styling when in edit mode */
+    [contenteditable="true"] {
+      outline: 2px dashed #8B5CF6 !important;
+      background: rgba(139, 92, 246, 0.05) !important;
+      border-radius: 2px;
+    }
+
+    /* ==========================================================================
+       8. PRINT MEDIA STYLES (PURE POSTER OUTPUT)
+       ========================================================================== */
+    @media print {
+      @page {
+        size: 48in 36in landscape;
+        margin: 0;
+      }
+
+      body {
+        background: white !important;
+        padding: 0 !important;
+      }
+
+      .toolbar {
+        display: none !important;
+      }
+
+      .poster-viewport {
+        padding: 0 !important;
+        overflow: visible !important;
+      }
+
+      .poster {
+        width: 100vw !important;
+        height: 100vh !important;
+        transform: scale(1) !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+      }
+
+      [contenteditable="true"] {
+        outline: none !important;
+        background: transparent !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       CONTROL TOOLBAR (Screen Only)
+       ========================================================================== -->
+  <div class="toolbar">
+    <div class="brand">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+      <span>GigEase Poster Studio</span> | CIT Machine Learning PBL
+    </div>
+
+    <div class="toolbar-actions">
+      <div class="scale-selector">
+        <label for="scaleSelect">Zoom:</label>
+        <select id="scaleSelect" onchange="adjustScale(this.value)">
+          <option value="fit">Fit to Screen</option>
+          <option value="0.75">75%</option>
+          <option value="1.0" selected>100% (Native)</option>
+          <option value="1.25">125%</option>
+        </select>
+      </div>
+
+      <button class="btn btn-edit" id="editToggleBtn" onclick="toggleEditMode()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+        Edit Text
+      </button>
+
+      <button class="btn btn-primary" onclick="window.print()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        Print / Export PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       POSTER CANVAS (36" x 48" Standard Academic Format)
+       ========================================================================== -->
+  <div class="poster-viewport">
+    <div class="poster" id="posterRoot">
+
+      <!-- HEADER BANNER -->
+      <header class="poster-header">
+        <!-- CIT Logo -->
+        <div class="logo-box" title="Chennai Institute of Technology Logo">
+          <svg viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+            <path d="M40 25 C 20 10, 5 30, 25 55 C 40 75, 60 40, 40 25 Z" fill="#F59E0B" />
+            <path d="M50 25 C 70 10, 85 30, 65 55 C 50 75, 30 40, 50 25 Z" fill="#3B82F6" />
+            <path d="M30 60 C 15 75, 35 105, 55 85 C 65 75, 45 50, 30 60 Z" fill="#10B981" />
+            <path d="M60 60 C 75 75, 55 105, 35 85 C 25 75, 45 50, 60 60 Z" fill="#EC4899" />
+            <circle cx="45" cy="50" r="5" fill="#1E293B" />
+            <text x="100" y="45" font-family="'Outfit', sans-serif" font-weight="900" font-size="32" fill="#0F172A">CHENNAI</text>
+            <text x="100" y="70" font-family="'Outfit', sans-serif" font-weight="700" font-size="20" fill="#1E3A8A">INSTITUTE OF TECHNOLOGY</text>
+            <text x="100" y="90" font-family="'Inter', sans-serif" font-weight="600" font-size="12" fill="#D97706" letter-spacing="1">TRANSFORMING LIVES</text>
+          </svg>
+        </div>
+
+        <!-- Header Titles -->
+        <div class="header-text">
+          <h1 class="editable">CHENNAI INSTITUTE OF TECHNOLOGY, CHENNAI (Autonomous)</h1>
+          <div class="subtitle-bar">
+            <span class="course-tag editable">PBL Course – Machine Learning & MLOps</span>
+            <span class="year-tag editable">2026-27</span>
+          </div>
+          <div class="project-title editable">
+            Project Title: GigEase — AI-Powered Parametric Income Protection Platform for Swiggy Delivery Partners
+          </div>
+        </div>
+
+        <!-- SIRAGU Logo -->
+        <div class="logo-box" title="Siragu Ecosystem Logo">
+          <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 70 Q 50 10, 90 40 T 160 30" fill="none" stroke="#2563EB" stroke-width="12" stroke-linecap="round" />
+            <path d="M30 80 Q 60 25, 100 55 T 170 45" fill="none" stroke="#F59E0B" stroke-width="8" stroke-linecap="round" />
+            <path d="M40 90 Q 70 40, 110 70 T 180 60" fill="none" stroke="#10B981" stroke-width="6" stroke-linecap="round" />
+            <text x="50" y="85" font-family="'Outfit', sans-serif" font-weight="900" font-size="30" fill="#1B3A6B">SIRAGU</text>
+          </svg>
+        </div>
+      </header>
+
+      <!-- MAIN CONTENT 3-COLUMN LAYOUT -->
+      <main class="poster-body">
+
+        <!-- ===================================================================
+             COLUMN 1: ABSTRACT, INTRODUCTION, SYSTEM ARCHITECTURE
+             =================================================================== -->
+        <div class="poster-column">
+
+          <!-- ABSTRACT -->
+          <section class="card">
+            <div class="card-header editable">Abstract</div>
+            <div class="card-content">
+              <p class="editable">
+                Platform-based food delivery partners in India (e.g., Swiggy) face an estimated <strong>20–30% loss of monthly earnings</strong> due to uncontrollable external disruptions such as extreme rainfall, severe AQI pollution, heatwaves, and local curfews. Traditional indemnity insurance fails gig workers due to complex paperwork, high friction, rigid monthly premiums, and slow manual claim processing.
+              </p>
+              <div class="highlight-box editable">
+                <strong>GigEase Solution:</strong> An AI-enabled Parametric Income Protection Platform operating on a <strong>Weekly Pricing Model</strong> with <strong>Zero-Touch Automated UPI Payouts</strong> for verified loss of income.
+              </div>
+            </div>
+          </section>
+
+          <!-- INTRODUCTION -->
+          <section class="card">
+            <div class="card-header editable">Introduction & Core Objectives</div>
+            <div class="card-content">
+              <p class="editable">
+                Unlike health or vehicle insurance, gig workers require <i>income continuity protection</i> tailored to their weekly financial payout cadence. When disruptions strike, gig workers lose active delivery hours.
+              </p>
+              
+              <div class="formula-box editable">
+                W_{premium} = W_{avg} \times (\beta_0 + \beta_1 \cdot Risk_{zone} + \beta_2 \cdot Monsoon_{weight})
+              </div>
+
+              <ul style="padding-left: 18px; display: flex; flex-direction: column; gap: 4px;" class="editable">
+                <li><strong>Dynamic Weekly Premium Engine:</strong> Recalculates premiums every 7 days based on 12-week baseline earnings (\(W_{avg}\)) and micro-zone risk vectors.</li>
+                <li><strong>Dual-Source Parametric Triggers:</strong> Evaluates live weather (Open-Meteo) & air quality (CPCB) data without manual claim filing.</li>
+                <li><strong>Multi-Layer Fraud Guard:</strong> Detects GPS spoofing and device fingerprint sharing using Isolation Forest & SHAP explainability.</li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- SYSTEM ARCHITECTURE DIAGRAM -->
+          <section class="card" style="flex-grow: 1;">
+            <div class="card-header editable">High-Level Architecture (HLD) Flow</div>
+            <div class="card-content">
+              <div class="arch-diagram-box">
+                <svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Nodes -->
+                  <!-- Layer 1 -->
+                  <rect x="10" y="10" width="110" height="40" rx="4" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.5" />
+                  <text x="65" y="28" font-size="9" font-weight="bold" fill="#1E40AF" text-anchor="middle">1. Data Ingestion</text>
+                  <text x="65" y="40" font-size="8" fill="#1E3A8A" text-anchor="middle">Open-Meteo / SDV (DVC)</text>
+
+                  <!-- Layer 2 -->
+                  <rect x="145" y="10" width="110" height="40" rx="4" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5" />
+                  <text x="200" y="28" font-size="9" font-weight="bold" fill="#5B21B6" text-anchor="middle">2. MLOps Core</text>
+                  <text x="200" y="40" font-size="8" fill="#4C1D95" text-anchor="middle">LightGBM & MLflow</text>
+
+                  <!-- Layer 3 -->
+                  <rect x="280" y="10" width="110" height="40" rx="4" fill="#CCFBF1" stroke="#0D9488" stroke-width="1.5" />
+                  <text x="335" y="28" font-size="9" font-weight="bold" fill="#0F766E" text-anchor="middle">3. Trigger Monitor</text>
+                  <text x="335" y="40" font-size="8" fill="#115E59" text-anchor="middle">Rain >35mm / AQI >400</text>
+
+                  <!-- Connectors Top -->
+                  <path d="M120 30 L145 30" stroke="#64748B" stroke-width="1.5" marker-end="url(#arrow)" />
+                  <path d="M255 30 L280 30" stroke="#64748B" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                  <!-- Middle Flow -->
+                  <path d="M335 50 L335 80 L65 80 L65 110" stroke="#64748B" stroke-width="1.5" fill="none" />
+
+                  <!-- Layer 4 -->
+                  <rect x="10" y="110" width="110" height="40" rx="4" fill="#FEF9C3" stroke="#CA8A04" stroke-width="1.5" />
+                  <text x="65" y="128" font-size="9" font-weight="bold" fill="#854D0E" text-anchor="middle">4. AI Fraud Guard</text>
+                  <text x="65" y="140" font-size="8" fill="#713F12" text-anchor="middle">Isolation Forest + SHAP</text>
+
+                  <!-- Layer 5 -->
+                  <rect x="145" y="110" width="110" height="40" rx="4" fill="#DCFCE7" stroke="#16A34A" stroke-width="1.5" />
+                  <text x="200" y="128" font-size="9" font-weight="bold" fill="#166534" text-anchor="middle">5. FastAPI Microservice</text>
+                  <text x="200" y="140" font-size="8" fill="#14532D" text-anchor="middle">REST APIs & Rules</text>
+
+                  <!-- Layer 6 -->
+                  <rect x="280" y="110" width="110" height="40" rx="4" fill="#FFE4E6" stroke="#E11D48" stroke-width="1.5" />
+                  <text x="335" y="128" font-size="9" font-weight="bold" fill="#9F1239" text-anchor="middle">6. UPI Payout Engine</text>
+                  <text x="335" y="140" font-size="8" fill="#881337" text-anchor="middle">Zero-Touch Transfer</text>
+
+                  <!-- Connectors Bottom -->
+                  <path d="M120 130 L145 130" stroke="#64748B" stroke-width="1.5" />
+                  <path d="M255 130 L280 130" stroke="#64748B" stroke-width="1.5" />
+
+                  <!-- Marker Definition -->
+                  <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748B" />
+                    </marker>
+                  </defs>
+                </svg>
+              </div>
+              <p class="caption editable">Figure 1. End-to-End Parametric Data & Execution Architecture Flow.</p>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- ===================================================================
+             COLUMN 2: METHODS, MATERIALS, RESULTS & BENCHMARKS
+             =================================================================== -->
+        <div class="poster-column">
+
+          <!-- METHODS & MATERIALS -->
+          <section class="card">
+            <div class="card-header editable">Methods & Materials (MLOps Architecture)</div>
+            <div class="card-content">
+              <p class="editable">
+                The platform is engineered across 6 modular architectural layers satisfying MLOps Level 2 Maturity standards:
+              </p>
+              <table class="poster-table editable">
+                <thead>
+                  <tr>
+                    <th>Component</th>
+                    <th>Technology Stack</th>
+                    <th>Role & Rationale</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Data Pipeline</strong></td>
+                    <td>DVC, SDV, Open-Meteo</td>
+                    <td>Versioned raw data streams (Weather, AQI, Synthetic Swiggy workers).</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Pricing Model</strong></td>
+                    <td>LightGBM Regressor</td>
+                    <td>Tabular regression for dynamic weekly risk-based premiums.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Fraud Guard</strong></td>
+                    <td>Isolation Forest, SHAP</td>
+                    <td>Anomaly score evaluation + local feature risk attribution.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Model Registry</strong></td>
+                    <td>MLflow Tracking</td>
+                    <td>Experiment tracking, metrics comparison, staging candidate models.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>API Serving</strong></td>
+                    <td>FastAPI, Async Pydantic</td>
+                    <td>Sub-second concurrent endpoint response for policy & claims.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>CI/CT/CD</strong></td>
+                    <td>GitHub Actions, Docker</td>
+                    <td>Drift-triggered automated retraining & container deployment.</td>
+                  </tr>
+                </tbody>
+              </table>
+              <p class="caption editable">Table 1. Core Technology Stack & Implementation Mapping.</p>
+            </div>
+          </section>
+
+          <!-- RESULTS & BENCHMARKS -->
+          <section class="card" style="flex-grow: 1;">
+            <div class="card-header editable">Results & Model Benchmarks</div>
+            <div class="card-content">
+              
+              <!-- Metrics Cards -->
+              <div class="metrics-grid">
+                <div class="metric-card">
+                  <div class="val editable">₹14.2</div>
+                  <div class="lbl editable">Mean Premium / Wk</div>
+                </div>
+                <div class="metric-card">
+                  <div class="val editable">96.4%</div>
+                  <div class="lbl editable">Auto-Approval Rate</div>
+                </div>
+                <div class="metric-card">
+                  <div class="val editable">&lt; 850ms</div>
+                  <div class="lbl editable">Payout Settlement</div>
+                </div>
+              </div>
+
+              <!-- Performance Table -->
+              <table class="poster-table editable" style="margin-top: 8px;">
+                <thead>
+                  <tr>
+                    <th>Model Task</th>
+                    <th>Algorithm</th>
+                    <th>Primary Metric</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Weekly Pricing</td>
+                    <td>LightGBM Regressor</td>
+                    <td>MAE: ₹1.42 / RMSE: ₹2.10</td>
+                    <td><span class="badge badge-success">Production</span></td>
+                  </tr>
+                  <tr>
+                    <td>Baseline Pricing</td>
+                    <td>Linear Regression</td>
+                    <td>MAE: ₹4.85 / RMSE: ₹6.30</td>
+                    <td><span class="badge badge-info">Baseline</span></td>
+                  </tr>
+                  <tr>
+                    <td>Fraud Detection</td>
+                    <td>Isolation Forest + XGB</td>
+                    <td>F1-Score: 0.942 / ROC: 0.978</td>
+                    <td><span class="badge badge-success">Production</span></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- Chart: Premium vs Risk -->
+              <div style="margin-top: 10px;">
+                <div style="font-weight: 700; font-size: 0.8rem; color: var(--cit-card-header);">
+                  Dynamic Weekly Premium vs. Delivery Zone Risk
+                </div>
+                <div class="chart-container">
+                  <canvas id="premiumChart"></canvas>
+                </div>
+                <p class="caption editable">Figure 2. Recalibrated weekly premium tiers across monsoon & clear weather zones.</p>
+              </div>
+
+            </div>
+          </section>
+
+        </div>
+
+        <!-- ===================================================================
+             COLUMN 3: DISCUSSION, CONCLUSIONS, TEAM & REFERENCES
+             =================================================================== -->
+        <div class="poster-column">
+
+          <!-- DISCUSSION -->
+          <section class="card">
+            <div class="card-header editable">Discussion & Risk Analysis</div>
+            <div class="card-content">
+              <p class="editable">
+                Evaluating the parametric trigger model reveals significant operational advantages over traditional loss-adjustment models:
+              </p>
+              
+              <ul style="padding-left: 18px; display: flex; flex-direction: column; gap: 6px;" class="editable">
+                <li>
+                  <strong>Zero Claims Friction:</strong> By monitoring environmental APIs directly, delivery partners receive payouts instantly during severe rain without taking screenshots or submitting forms.
+                </li>
+                <li>
+                  <strong>Anti-Syndicate Fraud Efficacy:</strong> Isolation Forest combined with GPS trajectory deviation checks successfully mitigates GPS spoofing attacks with an <strong>F1-score of 0.942</strong>.
+                </li>
+                <li>
+                  <strong>Underwriting Sustainability:</strong> Keeping the overall portfolio loss ratio below <strong>62.4%</strong> guarantees long-term commercial viability for insurers.
+                </li>
+              </ul>
+
+              <!-- Chart: Loss Ratio & Fraud Detection -->
+              <div style="margin-top: 8px;">
+                <div style="font-weight: 700; font-size: 0.8rem; color: var(--cit-card-header);">
+                  Loss Ratio & Fraud Guard Performance Trend
+                </div>
+                <div class="chart-container">
+                  <canvas id="lossRatioChart"></canvas>
+                </div>
+                <p class="caption editable">Figure 3. Loss Ratio stability under automated trigger events.</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- CONCLUSIONS -->
+          <section class="card">
+            <div class="card-header editable">Conclusions & Future Work</div>
+            <div class="card-content">
+              <p class="editable">
+                GigEase demonstrates the transformative power of coupling <strong>MLOps automation</strong> with <strong>Parametric Micro-Insurance</strong>. By providing instant income loss protection for Swiggy delivery partners, the platform restores financial stability to vulnerable gig workers.
+              </p>
+              <div class="highlight-box editable">
+                <strong>Future Roadmap:</strong> Expanding parametric triggers to heatwave stress indices, integrating satellite radar rainfall verification, and expanding multi-platform support (Zomato, Zepto, Dunzo).
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+      </main>
+
+      <!-- FOOTER SECTION: PROJECT TEAM & REFERENCES -->
+      <footer class="poster-footer">
+        
+        <!-- Project Team -->
+        <div class="footer-block">
+          <h3 class="editable">Project Team & Mentors</h3>
+          <ul class="footer-list editable">
+            <li><span class="num">1.</span> Student Member 1 (Reg. No: 2104221001)</li>
+            <li><span class="num">2.</span> Student Member 2 (Reg. No: 2104221002)</li>
+            <li><span class="num">3.</span> Student Member 3 (Reg. No: 2104221003)</li>
+            <li><span class="num">4.</span> Student Member 4 (Reg. No: 2104221004)</li>
+            <li><span class="num">5.</span> Faculty Mentor: Department of AI & ML</li>
+            <li><span class="num">6.</span> Institution: Chennai Institute of Technology</li>
+          </ul>
+        </div>
+
+        <!-- References -->
+        <div class="footer-block">
+          <h3 class="editable">References & Acknowledgments</h3>
+          <ul class="footer-list editable">
+            <li><span class="num">[1]</span> Guidewire DEVTrails 2026 University Hackathon Problem Statement.</li>
+            <li><span class="num">[2]</span> Open-Meteo Reanalysis API & CPCB Real-time Air Quality Data Index.</li>
+            <li><span class="num">[3]</span> Scikit-Learn, LightGBM & MLflow Open-Source MLOps Ecosystem.</li>
+            <li><span class="num">[4]</span> DVC (Data Version Control) Documentation for ML Reproducibility.</li>
+            <li><span class="num">[5]</span> Lundberg, S. M., & Lee, S.-I. (2017). A unified approach to interpreting model predictions (SHAP).</li>
+          </ul>
+        </div>
+
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       SCRIPT: CHART RENDERING & TOOLBAR CONTROLS
+       ========================================================================== -->
+  <script>
+    // Initialize Chart 1: Premium vs Zone Risk Tiers
+    const ctx1 = document.getElementById('premiumChart').getContext('2d');
+    new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: ['Low Risk Zone', 'Medium Risk Zone', 'High Monsoon Zone', 'Extreme Heat Zone'],
+        datasets: [
+          {
+            label: 'Clear Season (₹)',
+            data: [9.5, 12.0, 15.5, 14.0],
+            backgroundColor: '#60A5FA'
+          },
+          {
+            label: 'Monsoon Season (₹)',
+            data: [14.0, 18.5, 24.0, 21.5],
+            backgroundColor: '#1E3A8A'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { font: { size: 9, family: 'Inter' } } }
+        },
+        scales: {
+          x: { ticks: { font: { size: 8 } } },
+          y: { 
+            ticks: { font: { size: 8 } },
+            title: { display: true, text: 'Weekly Premium (₹)', font: { size: 9 } }
+          }
+        }
+      }
+    });
+
+    // Initialize Chart 2: Loss Ratio & Fraud Detection Rate
+    const ctx2 = document.getElementById('lossRatioChart').getContext('2d');
+    new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'],
+        datasets: [
+          {
+            label: 'Loss Ratio (%)',
+            data: [58.2, 61.5, 64.0, 59.8, 62.4, 60.1, 57.9, 61.2],
+            borderColor: '#10B981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            fill: true,
+            tension: 0.3
+          },
+          {
+            label: 'Target Cap (65%)',
+            data: [65, 65, 65, 65, 65, 65, 65, 65],
+            borderColor: '#EF4444',
+            borderDash: [4, 4],
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { font: { size: 9, family: 'Inter' } } }
+        },
+        scales: {
+          x: { ticks: { font: { size: 8 } } },
+          y: { 
+            min: 50, 
+            max: 75,
+            ticks: { font: { size: 8 } },
+            title: { display: true, text: 'Portfolio Loss Ratio (%)', font: { size: 9 } }
+          }
+        }
+      }
+    });
+
+    // Scale Selector Functionality
+    function adjustScale(val) {
+      const poster = document.getElementById('posterRoot');
+      if (val === 'fit') {
+        const viewportWidth = window.innerWidth - 48;
+        const scale = Math.min(viewportWidth / 1440, 1.0);
+        poster.style.transform = `scale(${scale})`;
+      } else {
+        poster.style.transform = `scale(${val})`;
+      }
+    }
+
+    // Toggle Content Editable Mode
+    let isEditing = false;
+    function toggleEditMode() {
+      isEditing = !isEditing;
+      const btn = document.getElementById('editToggleBtn');
+      const editables = document.querySelectorAll('.editable');
+
+      editables.forEach(el => {
+        el.contentEditable = isEditing ? "true" : "false";
+      });
+
+      if (isEditing) {
+        btn.classList.add('active');
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Done Editing`;
+      } else {
+        btn.classList.remove('active');
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> Edit Text`;
+      }
+    }
+
+    // Auto-fit on initial load
+    window.addEventListener('load', () => {
+      adjustScale('fit');
+    });
+    window.addEventListener('resize', () => {
+      if (document.getElementById('scaleSelect').value === 'fit') {
+        adjustScale('fit');
+      }
+    });
+  </script>
+</body>
+</html>

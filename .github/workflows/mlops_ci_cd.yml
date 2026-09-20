@@ -1,0 +1,71 @@
+name: GigEase MLOps CI/CD & Automated Retraining Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  schedule:
+    # Run weekly continuous retraining pipeline trigger (every Sunday at midnight)
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  mlops-ci-pipeline:
+    name: Continuous Integration & Model Test Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Execute Data Validation Pipeline (Stage 1)
+        run: |
+          python src/data/run_data_collection.py
+
+      - name: Execute Feature Engineering Pipeline (Stage 2)
+        run: |
+          python src/features/run_stage2_pipeline.py
+
+      - name: Run PyTest Automated Test Suite
+        run: |
+          pytest tests/ -v --tb=short
+
+      - name: Execute Model Training & MLflow Logging (Stage 3)
+        run: |
+          python src/models/run_stage3_pipeline.py
+
+      - name: Execute Drift Monitoring & Continuous Retraining Check (Stage 5)
+        run: |
+          python src/models/monitor_drift.py
+
+  docker-build-check:
+    name: Container Build Verification
+    needs: mlops-ci-pipeline
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build REST API Container Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: gigease-api:latest

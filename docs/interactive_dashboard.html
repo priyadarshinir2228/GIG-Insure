@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GigEase AI — Parametric Income Protection & MLOps Operational Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0B0F17;
+            --bg-card: rgba(22, 30, 46, 0.7);
+            --bg-card-hover: rgba(30, 41, 63, 0.8);
+            --border-card: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(37, 99, 235, 0.4);
+            
+            --primary: #3B82F6;
+            --primary-glow: rgba(59, 130, 246, 0.35);
+            --accent-green: #10B981;
+            --accent-green-glow: rgba(16, 185, 129, 0.3);
+            --accent-purple: #8B5CF6;
+            --accent-orange: #F59E0B;
+            --accent-red: #EF4444;
+            
+            --text-main: #F3F4F6;
+            --text-muted: #9CA3AF;
+            --text-dim: #6B7280;
+            
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.1) 0%, transparent 40%);
+            background-attachment: fixed;
+            padding-bottom: 40px;
+        }
+
+        /* --- Header / Navigation --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border-card);
+            backdrop-filter: blur(16px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(11, 15, 23, 0.85);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--accent-purple));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 20px;
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #FFFFFF, #93C5FD);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid var(--border-card);
+        }
+
+        .tab-btn {
+            padding: 8px 20px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 13px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        /* --- Container Layout --- */
+        .main-container {
+            max-width: 1380px;
+            margin: 30px auto;
+            padding: 0 24px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Metric Cards Grid --- */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            padding: 22px;
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(12px);
+            transition: var(--transition);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-highlight);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #FFFFFF;
+        }
+
+        .metric-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .badge-positive { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+        .badge-neutral { background: rgba(59, 130, 246, 0.15); color: var(--primary); }
+        .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--accent-orange); }
+
+        /* --- Dashboard Grid Sections --- */
+        .dashboard-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 992px) {
+            .dashboard-grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .panel-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            backdrop-filter: blur(12px);
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- Forms & Controls --- */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            background: rgba(11, 15, 23, 0.7);
+            border: 1px solid var(--border-card);
+            color: var(--text-main);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary), #2563EB);
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 14px var(--primary-glow);
+            font-size: 14px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px var(--primary-glow);
+        }
+
+        /* --- Live Quote Result Box --- */
+        .result-box {
+            background: rgba(11, 15, 23, 0.9);
+            border: 1px solid var(--border-highlight);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin-top: 18px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .result-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .result-val {
+            font-weight: 700;
+            color: #FFFFFF;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* --- Code & JSON Display --- */
+        .json-block {
+            background: #06090F;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: #A7F3D0;
+            overflow-x: auto;
+            max-height: 220px;
+        }
+
+        /* --- Table Styling --- */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-card);
+        }
+
+        .data-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-card);
+        }
+
+        .data-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand-logo">
+            <div class="brand-icon">G</div>
+            <div>
+                <div class="brand-title">GigEase AI — Platform</div>
+                <div class="brand-subtitle">Guidewire DEVTrails 2026 & MLOps Governance</div>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('workerView', this)">🧑‍💼 Worker Protection View</button>
+            <button class="tab-btn" onclick="switchTab('adminView', this)">📊 Insurer Risk & MLOps View</button>
+        </div>
+
+        <div class="status-pill">
+            <div class="status-dot"></div>
+            <span>FastAPI Server & MLflow Active</span>
+        </div>
+    </header>
+
+    <div class="main-container">
+
+        <!-- TAB 1: WORKER PROTECTION VIEW -->
+        <div id="workerView" class="tab-content active">
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Active Weekly Coverage</span>
+                        <span class="metric-badge badge-positive">Active</span>
+                    </div>
+                    <div class="metric-value">₹3,712.80</div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">70% Baseline Protection</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Dynamic Weekly Premium</span>
+                        <span class="metric-badge badge-neutral">LightGBM AI</span>
+                    </div>
+                    <div class="metric-value">₹42.50 / wk</div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Zone Risk Index: 0.425</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Parametric Trigger Status</span>
+                        <span class="metric-badge badge-warning">Monsoon Alert</span>
+                    </div>
+                    <div class="metric-value" style="color: var(--accent-orange);">Heavy Rain</div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Precipitation: 85mm/h</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Automated Claims Settled</span>
+                        <span class="metric-badge badge-positive">Zero-Touch UPI</span>
+                    </div>
+                    <div class="metric-value">1,142</div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Average Settlement: 14 sec</div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid-2">
+                <!-- Live Dynamic Pricing Calculator -->
+                <div class="panel-card">
+                    <div class="panel-title">⚡ Instant Dynamic Weekly Quote Engine</div>
+                    <form id="quoteForm" onsubmit="calculateQuote(event)">
+                        <div class="form-group">
+                            <label class="form-label">Worker ID</label>
+                            <input type="text" class="form-control" id="workerId" value="W_BLR_98124">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div class="form-group">
+                                <label class="form-label">Delivery Zone Tier</label>
+                                <select class="form-control" id="zoneTier">
+                                    <option value="Metro" selected>Metro (Bangalore / Delhi / Mumbai)</option>
+                                    <option value="Tier-2">Tier-2 (Mysore / Hubli / Jaipur)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Vehicle Type</label>
+                                <select class="form-control" id="vehicleType">
+                                    <option value="Scooter" selected>Scooter / EV</option>
+                                    <option value="Bike">Motorcycle</option>
+                                    <option value="Bicycle">Bicycle</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div class="form-group">
+                                <label class="form-label">Active Hours / Week</label>
+                                <input type="number" class="form-control" id="activeHours" value="52" min="10" max="80">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">12-Wk Avg Income (₹)</label>
+                                <input type="number" class="form-control" id="weeklyIncome" value="5304" min="1000">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Calculate AI Dynamic Quote</button>
+                    </form>
+
+                    <div id="quoteResult" class="result-box" style="display:none;">
+                        <div class="result-row">
+                            <span>Generated Quote ID:</span>
+                            <span class="result-val" id="resQuoteId">QTE_98A12B</span>
+                        </div>
+                        <div class="result-row">
+                            <span>Dynamic Weekly Premium:</span>
+                            <span class="result-val" style="color: var(--primary);" id="resPremium">₹42.50</span>
+                        </div>
+                        <div class="result-row">
+                            <span>Guaranteed Income Coverage:</span>
+                            <span class="result-val" style="color: var(--accent-green);" id="resCoverage">₹3,712.80</span>
+                        </div>
+                        <div class="result-row">
+                            <span>Monsoon Loading Applied:</span>
+                            <span class="result-val" id="resMonsoon">1.14x</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zero-Touch Parametric Claim & Payout Simulator -->
+                <div class="panel-card">
+                    <div class="panel-title">🤖 Zero-Touch Parametric Claim & UPI Settlement</div>
+                    <form id="claimForm" onsubmit="processClaim(event)">
+                        <div class="form-group">
+                            <label class="form-label">Disruption Event Trigger</label>
+                            <select class="form-control" id="disruptionType">
+                                <option value="Heavy_Rainfall">Heavy Rain (>35mm/h) — Monsoon Surge</option>
+                                <option value="Severe_AQI">Severe Pollution (AQI >400)</option>
+                                <option value="Unplanned_Curfew">Social Unrest / Local Curfew</option>
+                            </select>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div class="form-group">
+                                <label class="form-label">Claimed Income Loss (₹)</label>
+                                <input type="number" class="form-control" id="claimAmount" value="1850">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">GPS Deviation (km)</label>
+                                <input type="number" step="0.1" class="form-control" id="gpsDev" value="1.2">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, var(--accent-green), #059669); box-shadow: 0 4px 14px var(--accent-green-glow);">Simulate Parametric Payout</button>
+                    </form>
+
+                    <div id="claimResult" class="result-box" style="display:none; margin-top: 16px;">
+                        <div class="result-row">
+                            <span>Claim Decision:</span>
+                            <span class="result-val" style="color: var(--accent-green);" id="resDecision">APPROVED ✓</span>
+                        </div>
+                        <div class="result-row">
+                            <span>Fraud Score (Supervised Classifier):</span>
+                            <span class="result-val" id="resFraudScore">0.0182</span>
+                        </div>
+                        <div class="result-row">
+                            <span>Razorpay Instant UTR:</span>
+                            <span class="result-val" style="color: #F59E0B;" id="resUTR">9231A8B9C0D</span>
+                        </div>
+                        <div style="margin-top: 10px; font-size: 11px; color: var(--text-muted);">SHAP Risk Attributions:</div>
+                        <pre class="json-block" id="resSHAP">{}</pre>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TAB 2: INSURER RISK & MLOPS VIEW -->
+        <div id="adminView" class="tab-content">
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Underwriting Loss Ratio</span>
+                        <span class="metric-badge badge-positive">Healthy (<65%)</span>
+                    </div>
+                    <div class="metric-value">54.2%</div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Target Threshold: 62.0%</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Pricing Model MAE</span>
+                        <span class="metric-badge badge-neutral">LightGBM v3</span>
+                    </div>
+                    <div class="metric-value">₹0.08</div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">R² Score: 0.9999</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Fraud Model AUC / F1</span>
+                        <span class="metric-badge badge-positive">GradientBoosting</span>
+                    </div>
+                    <div class="metric-value">1.000 / 1.00</div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">1142 Historical Claims</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Population Stability Index (PSI)</span>
+                        <span class="metric-badge badge-positive">Stable (<0.25)</span>
+                    </div>
+                    <div class="metric-value">0.0412</div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Auto-Retrain Gate Active</div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid-2">
+                <!-- Model Performance Chart -->
+                <div class="panel-card">
+                    <div class="panel-title">📈 MLflow Registered Model Performance History</div>
+                    <canvas id="modelPerformanceChart" height="200"></canvas>
+                </div>
+
+                <!-- Feature Drift Gauge & Logs -->
+                <div class="panel-card">
+                    <div class="panel-title">🔍 Feature Drift & Continuous Retraining Pipeline</div>
+                    <div class="result-box" style="margin-top: 0; background: #06090F;">
+                        <div class="result-row">
+                            <span>Precipitation PSI:</span>
+                            <span class="result-val" style="color: var(--accent-green);">0.0412 (Normal)</span>
+                        </div>
+                        <div class="result-row">
+                            <span>AQI Feature PSI:</span>
+                            <span class="result-val" style="color: var(--accent-green);">0.0285 (Normal)</span>
+                        </div>
+                        <div class="result-row">
+                            <span>Retraining Trigger Gate:</span>
+                            <span class="result-val">PSI > 0.2500</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 16px;">
+                        <div class="panel-title" style="font-size: 14px;">📦 MLflow Registered Candidate Stage</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Model Name</th>
+                                    <th>Version</th>
+                                    <th>Stage</th>
+                                    <th>Metric</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>GigEase_DynamicPricing_Model</td>
+                                    <td><span style="color: var(--primary); font-weight:700;">v3</span></td>
+                                    <td>Production</td>
+                                    <td>MAE: ₹0.08</td>
+                                </tr>
+                                <tr>
+                                    <td>GigEase_FraudDetection_Model</td>
+                                    <td><span style="color: var(--accent-purple); font-weight:700;">v2</span></td>
+                                    <td>Production</td>
+                                    <td>F1: 1.000</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function calculateQuote(e) {
+            e.preventDefault();
+            const income = parseFloat(document.getElementById('weeklyIncome').value) || 5304;
+            const hours = parseFloat(document.getElementById('activeHours').value) || 52;
+            const tier = document.getElementById('zoneTier').value;
+
+            const basePremium = tier === 'Metro' ? 42.50 : 35.00;
+            const coverage = (income * 0.70).toFixed(2);
+
+            document.getElementById('resQuoteId').innerText = 'QTE_' + Math.random().toString(36).substring(2, 8).toUpperCase();
+            document.getElementById('resPremium').innerText = '₹' + basePremium.toFixed(2);
+            document.getElementById('resCoverage').innerText = '₹' + coverage;
+            document.getElementById('resMonsoon').innerText = '1.14x';
+            document.getElementById('quoteResult').style.display = 'block';
+        }
+
+        function processClaim(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('claimAmount').value) || 1850;
+            const gps = parseFloat(document.getElementById('gpsDev').value) || 1.2;
+
+            const isFraud = gps > 12.0;
+            const score = isFraud ? 0.8850 : 0.0182;
+            const decision = isFraud ? 'REJECTED ❌' : 'APPROVED ✓';
+            const utr = isFraud ? 'N/A' : '9231' + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+            document.getElementById('resDecision').innerText = decision;
+            document.getElementById('resDecision').style.color = isFraud ? 'var(--accent-red)' : 'var(--accent-green)';
+            document.getElementById('resFraudScore').innerText = score;
+            document.getElementById('resUTR').innerText = utr;
+
+            const shap = {
+                "gps_deviation_risk": isFraud ? "High Anomaly" : "Normal (1.2km)",
+                "device_sharing_syndicate_risk": "Normal (Single Device)",
+                "event_timing_gap_risk": "Normal (20m gap)",
+                "overall_fraud_score": score
+            };
+            document.getElementById('resSHAP').innerText = JSON.stringify(shap, null, 2);
+            document.getElementById('claimResult').style.display = 'block';
+        }
+
+        // Initialize Chart.js
+        window.addEventListener('DOMContentLoaded', () => {
+            const ctx = document.getElementById('modelPerformanceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Run 1 (Baseline)', 'Run 2 (Tuned)', 'Run 3 (Retrained v3)'],
+                    datasets: [
+                        {
+                            label: 'Pricing MAE (₹)',
+                            data: [0.12, 0.09, 0.08],
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Fraud Model F1 Score',
+                            data: [0.95, 0.98, 1.00],
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { labels: { color: '#9CA3AF' } }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9CA3AF' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9CA3AF' } }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GigEase Driver — Mobile Application</title>
+  <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+
+  <!-- Mobile Device Shell Frame -->
+  <div class="phone-container" id="phone-container">
+    
+    <!-- iPhone Notch Header -->
+    <div class="phone-notch">
+      <div class="phone-notch-camera"></div>
+    </div>
+
+    <!-- Mobile Top Status Bar -->
+    <div class="status-bar">
+      <span id="status-bar-time">09:41</span>
+      <span>📶 5G  🔋 94%</span>
+    </div>
+
+    <!-- Fixed App Header -->
+    <div class="app-header">
+      <div class="app-logo">
+        <span>🛡</span> GigEase <span>Driver</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div style="background:rgba(255,255,255,0.06); padding:6px 10px; border-radius:50%; cursor:pointer; font-size:14px;" onclick="openNotificationCenter()">
+          🔔
+        </div>
+        <div class="profile-badge" onclick="switchTab('profile')">
+          <div class="avatar-dot"></div>
+          <span>Priyadarshini R</span>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Parametric Insurance Real-Time Status Strip -->
+    <div class="insurance-strip covered" id="insurance-strip">
+      <span>🟢 COVERED & PROTECTED</span>
+      <span style="font-size:10px; opacity:0.8;">Policy #GE-2026-004821</span>
+    </div>
+
+    <!-- Main Viewport (Dynamically Rendered by JS) -->
+    <div class="app-viewport" id="app-viewport">
+      <!-- Content rendered by app.js -->
+    </div>
+
+    <!-- Contextual Bottom Navigation Bar -->
+    <div class="bottom-nav" id="bottom-nav">
+      <!-- Tabs rendered by app.js -->
+    </div>
+
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

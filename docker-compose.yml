@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  gigease-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gigease_rest_api
+    ports:
+      - "8000:8000"
+    environment:
+      - MLFLOW_TRACKING_URI=sqlite:////app/mlflow.db
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mlflow-ui:
+    image: ghcr.io/mlflow/mlflow:v2.10.0
+    container_name: gigease_mlflow_server
+    command: mlflow server --backend-store-uri sqlite:////app/mlflow.db --default-artifact-root /app/mlruns --host 0.0.0.0 --port 5000
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    restart: always

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GigEase — Visual HLD Architecture Viewer</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #e2e8f0;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #38bdf8;
+      margin-bottom: 20px;
+    }
+    .mermaid {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 24px;
+      width: 95%;
+      max-width: 1400px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <h1>GigEase — End-to-End High-Level System Architecture</h1>
+  <div class="mermaid">
+flowchart TD
+    WORKER(["🧑‍💼 Swiggy Delivery Partner"])
+    ADMIN(["📊 Insurer / Risk Admin"])
+
+    subgraph L1["LAYER 1 — Ingestion & Data Pipeline (DVC Versioned)"]
+        direction TB
+        S1["Stream 1: Open-Meteo & CPCB APIs\n(Weather, Rain, AQI, Temp)"]
+        S2["Stream 2: Persona & Worker Engine\n(SDV + Faker Synthetic Population)"]
+        S3["Stream 3: Platform Order Stream\n(Kaggle Zomato Aligned Orders & Earnings)"]
+        S4["Stream 4: Fraud Signal Injector\n(GPS Spoof, Device Sharing, Timing Gaps)"]
+        DVC_PIPE[["📦 DVC Pipeline (dvc.yaml)\nIngest ➔ Preprocess ➔ Validate"]]
+    end
+
+    subgraph L2["LAYER 2 — MLOps Core & Experimentation (MLflow)"]
+        direction TB
+        PREPROC["Feature Engineering & Scaling\n(Zone Tier, Monsoon Weight, Tenure)"]
+        TRAIN_PRICING["Dynamic Weekly Pricing Model\n(LightGBM / XGBoost Regressor)"]
+        TRAIN_FRAUD["Intelligent Fraud Classifier\n(Isolation Forest + Supervised Classifier)"]
+        MLFLOW[("🧪 MLflow Experiment Tracking\n& Production Model Registry")]
+    end
+
+    subgraph L3["LAYER 3 — Parametric Trigger & Risk Engine"]
+        direction TB
+        LIVE_MONITOR["Real-Time Trigger Monitor\n(Rain >35mm/h, AQI >400, Heat >42°C, Curfews)"]
+        CONFIRM{"Dual-Source Event\nConfirmation?"}
+        GEO_MATCH["Geofencing Service\nZone Matching"]
+        LOSS_CALC["Income Loss Engine\n(Expected Baseline - Actual Earnings)"]
+    end
+
+    subgraph L4["LAYER 4 — AI Decision & Fraud Guard"]
+        direction TB
+        FRAUD_EVAL["Fraud Score Evaluator\n(GPS Deviation + Device Reuse)"]
+        SHAP_EXPLAIN["SHAP Explainability Engine\n(Local Feature Risk Breakdown)"]
+        DECISION_GATE{"Auto-Approve\n/ Flag / Reject"}
+    end
+
+    subgraph L5["LAYER 5 — FastAPI Microservice & Instant Settlement"]
+        direction TB
+        FASTAPI["⚡ FastAPI REST Server\n/quote · /subscribe · /trigger · /claim"]
+        PAYOUT_SIM["Instant UPI / Razorpay Simulator\n(Automated UTR Generation)"]
+        NOTIFY["Twilio / WhatsApp / Push\nNotification Dispatcher"]
+    end
+
+    subgraph L6["LAYER 6 — CI/CT/CD & Drift Monitoring"]
+        direction TB
+        DRIFT_MONITOR["Data & Model Drift Monitor\n(Evidently AI / PSI Score Tracking)"]
+        GITHUB_ACTIONS[["⚙️ GitHub Actions CI/CT/CD\nAutomated Test ➔ Retrain ➔ Deploy"]]
+        DASHBOARDS["📊 Dual Interactive Web Dashboard\nWorker Protection View vs Admin Loss Ratio View"]
+    end
+
+    S1 --> DVC_PIPE
+    S2 --> DVC_PIPE
+    S3 --> DVC_PIPE
+    S4 --> DVC_PIPE
+
+    DVC_PIPE --> PREPROC
+    PREPROC --> TRAIN_PRICING
+    PREPROCULE --> TRAIN_FRAUD
+
+    TRAIN_PRICING --> MLFLOW
+    TRAIN_FRAUD --> MLFLOW
+
+    MLFLOW -->|"Deploys Model"| FASTAPI
+
+    WORKER -->|"Onboarding & Policy Quote"| FASTAPI
+    FASTAPI -->|"Calculates Dynamic Weekly Premium"| TRAIN_PRICING
+
+    S1 --> LIVE_MONITOR
+    LIVE_MONITOR --> CONFIRM
+    CONFIRM -->|"Verified ✓"| GEO_MATCH
+    GEO_MATCH --> LOSS_CALC
+    LOSS_CALC -->|"Calculates Loss"| FRAUD_EVAL
+
+    FRAUD_EVAL --> SHAP_EXPLAIN
+    SHAP_EXPLAIN --> DECISION_GATE
+
+    DECISION_GATE -->|"Approved (95%+)"| PAYOUT_SIM
+    PAYOUT_SIM -->|"Instant UPI Credit"| WORKER
+    PAYOUT_SIM --> NOTIFY
+
+    FASTAPI -->|"Inference Logs"| DRIFT_MONITOR
+    DRIFT_MONITOR -->|"Drift Threshold Exceeded"| GITHUB_ACTIONS
+    GITHUB_ACTIONS -->|"Triggers Continuous Retraining"| DVC_PIPE
+
+    FASTAPI --> DASHBOARDS
+    DRIFT_MONITOR --> DASHBOARDS
+    DASHBOARDS --> ADMIN
+  </div>
+
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+  </script>
+</body>
+</html>

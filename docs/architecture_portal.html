@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GigEase — Architecture & MLOps Planning Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-purple: #c084fc;
+      --accent-green: #4ade80;
+      --accent-amber: #fbbf24;
+      --accent-rose: #fb7185;
+      --tag-bg: rgba(56, 189, 248, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 1.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-right: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .badge-primary { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .badge-success { background: rgba(74, 222, 128, 0.15); color: var(--accent-green); border: 1px solid rgba(74, 222, 128, 0.3); }
+    .badge-purple { background: rgba(192, 132, 252, 0.15); color: var(--accent-purple); border: 1px solid rgba(192, 132, 252, 0.3); }
+    .badge-amber { background: rgba(251, 191, 36, 0.15); color: var(--accent-amber); border: 1px solid rgba(251, 191, 36, 0.3); }
+
+    h1 { font-size: 2.25rem; font-weight: 700; color: #ffffff; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.5rem; font-weight: 600; color: var(--accent-blue); margin: 2rem 0 1rem 0; display: flex; align-items: center; gap: 0.5rem; }
+    p.subtitle { font-size: 1.1rem; color: var(--text-muted); }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      margin-top: 1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.925rem;
+    }
+
+    th {
+      background-color: #1a2332;
+      color: var(--accent-blue);
+      font-weight: 600;
+      padding: 1rem;
+      border-bottom: 2px solid var(--card-border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--card-border);
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.02); }
+    tr:hover { background-color: rgba(56, 189, 248, 0.04); }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(0, 0, 0, 0.4);
+      color: var(--accent-purple);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    .diagram-box {
+      background: #090d16;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+
+    .diagram-box .mermaid { width: 100%; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div>
+        <span class="badge badge-primary">Guidewire DEVTrails 2026</span>
+        <span class="badge badge-purple">MLOps Stage 1 Analysis & Roadmap</span>
+        <span class="badge badge-success">Target: Swiggy Persona</span>
+      </div>
+      <h1>GigEase Planning & Architecture Portal</h1>
+      <p class="subtitle">AI-Powered Parametric Income Protection Platform for Delivery Partners</p>
+    </header>
+
+    <!-- SECTION 1: STAGE 1 DATA COLLECTION ANALYSIS -->
+    <div class="card">
+      <h2>📊 Stage 1 Data Collection Plan Analysis (Completed)</h2>
+      <p style="margin-bottom: 1rem;">
+        Integrates the <strong>GigEase Data Collection Documentation (Priyadarshini R | 24AD0222)</strong> defining 4 raw streams, weekly grain key <code>(worker_id, zone_id, week_start_date)</code>, and real dataset/API citations.
+      </p>
+
+      <div class="grid-4">
+        <div style="background: rgba(56, 189, 248, 0.08); padding: 1rem; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.2);">
+          <span class="badge badge-primary">Stream 1</span>
+          <strong style="display:block; margin-top:0.25rem; color:#fff;">Environmental & Disruption Data</strong>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">Open-Meteo API (weather from 1940), CPCB/OpenAQ (AQI/PM2.5), <code>holidays.India</code> calendar, synthetic curfew/strike injector.</p>
+        </div>
+
+        <div style="background: rgba(74, 222, 128, 0.08); padding: 1rem; border-radius: 8px; border: 1px solid rgba(74, 222, 128, 0.2);">
+          <span class="badge badge-success">Stream 2</span>
+          <strong style="display:block; margin-top:0.25rem; color:#fff;">Worker & Persona Data</strong>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">SDV GaussianCopulaSynthesizer + Faker, Kaggle Zomato delivery structure reference, IDinsight DERII benchmarks (₹102/hr baseline, ₹18,761/mo net).</p>
+        </div>
+
+        <div style="background: rgba(192, 132, 252, 0.08); padding: 1rem; border-radius: 8px; border: 1px solid rgba(192, 132, 252, 0.2);">
+          <span class="badge badge-purple">Stream 3</span>
+          <strong style="display:block; margin-top:0.25rem; color:#fff;">Platform & Order Stream</strong>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">Aggregated order delivery timestamps, pickup/drop zones, delivery earnings, simulated live order stream (FastAPI), Razorpay test mode.</p>
+        </div>
+
+        <div style="background: rgba(251, 191, 36, 0.08); padding: 1rem; border-radius: 8px; border: 1px solid rgba(251, 191, 36, 0.2);">
+          <span class="badge badge-amber">Stream 4</span>
+          <strong style="display:block; margin-top:0.25rem; color:#fff;">Claims & Fraud Signals</strong>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">Legitimate claims + injected fraud anomalies (GPS deviation, device ID reuse count, timing gap anomaly, synthetic ground truth labels).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: NEXT STAGES MLOPS ROADMAP -->
+    <div class="card">
+      <h2>🚀 Actionable Next Stages Roadmap in MLOps Lifecycle</h2>
+      <p style="margin-bottom: 1rem;">Actionable TODO roadmap for upcoming pipeline development stages:</p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>MLOps Stage</th>
+              <th>Stage Name</th>
+              <th>Key Implementation Tasks</th>
+              <th>Outputs & Tools</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background: rgba(56, 189, 248, 0.08);">
+              <td><strong>Stage 2 (NEXT)</strong></td>
+              <td>Data Preprocessing, Validation & Feature Engineering</td>
+              <td>Impute missing weather/AQI data, validate schema with Pydantic, compute 12-week rolling $W_{avg}$ baseline (₹102/hr benchmark), zone risk index, monsoon weights, and fraud timing gaps.</td>
+              <td><code>/data/processed/</code>, <code>dvc.yaml</code>, <code>Great Expectations</code></td>
+              <td><span class="badge badge-primary">Immediate Next</span></td>
+            </tr>
+            <tr>
+              <td><strong>Stage 3</strong></td>
+              <td>Model Development & MLflow Experiment Tracking</td>
+              <td>Train LightGBM dynamic pricing regressor and Isolation Forest/XGBoost fraud classifier. Log hyperparameter runs, MAE/F1 metrics, generate SHAP explainability, and register candidate models.</td>
+              <td><code>MLflow Registry</code>, <code>SHAP</code>, <code>Scikit-Learn</code></td>
+              <td><span class="badge badge-amber">Planned</span></td>
+            </tr>
+            <tr>
+              <td><strong>Stage 4</strong></td>
+              <td>Model Serving & API Containerization</td>
+              <td>Build REST API microservices (FastAPI: <code>/quote</code>, <code>/claim</code>, <code>/payout</code>), Razorpay UPI payment simulator, multi-stage <code>Dockerfile</code> & <code>docker-compose.yml</code>.</td>
+              <td><code>FastAPI</code>, <code>Docker</code>, <code>Docker Compose</code></td>
+              <td><span class="badge badge-amber">Planned</span></td>
+            </tr>
+            <tr>
+              <td><strong>Stage 5</strong></td>
+              <td>CI/CT/CD Automated Retraining & Monitoring</td>
+              <td>GitHub Actions CI/CD pipeline automation, Evidently AI data drift monitoring, automated retraining triggers on weather anomalies, and dual worker/admin dashboard.</td>
+              <td><code>GitHub Actions</code>, <code>Evidently AI</code>, <code>Chart.js</code></td>
+              <td><span class="badge badge-amber">Planned</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECTION 3: RECONSTRUCTED SYSTEM ARCHITECTURE DIAGRAM -->
+    <div class="card">
+      <h2>📐 Integrated 6-Layer System Architecture</h2>
+      <div class="diagram-box">
+        <pre class="mermaid">
+flowchart TD
+    WORKER(["🧑‍💼 Swiggy Delivery Partner"])
+    ADMIN(["📊 Insurer / Risk Admin"])
+
+    subgraph L1["LAYER 1 — Ingestion & Data Pipeline (DVC Versioned)"]
+        direction TB
+        S1["Stream 1: Open-Meteo & CPCB APIs\n(Weather, Rain, AQI, Temp)"]
+        S2["Stream 2: Persona & Worker Engine\n(SDV + Faker Synthetic Population)"]
+        S3["Stream 3: Platform Order Stream\n(Kaggle Zomato Aligned Orders & Earnings)"]
+        S4["Stream 4: Fraud Signal Injector\n(GPS Spoof, Device Sharing, Timing Gaps)"]
+        DVC_PIPE[["📦 DVC Pipeline (dvc.yaml)\nIngest ➔ Preprocess ➔ Validate"]]
+    end
+
+    subgraph L2["LAYER 2 — MLOps Core & Experimentation (MLflow)"]
+        direction TB
+        PREPROC["Feature Engineering & Scaling\n(Zone Tier, Monsoon Weight, Tenure)"]
+        TRAIN_PRICING["Dynamic Weekly Pricing Model\n(LightGBM / XGBoost Regressor)"]
+        TRAIN_FRAUD["Intelligent Fraud Classifier\n(Isolation Forest + Supervised Classifier)"]
+        MLFLOW[("🧪 MLflow Experiment Tracking\n& Production Model Registry")]
+    end
+
+    subgraph L3["LAYER 3 — Parametric Trigger & Risk Engine"]
+        direction TB
+        LIVE_MONITOR["Real-Time Trigger Monitor\n(Rain >35mm/h, AQI >400, Heat >42°C, Curfews)"]
+        CONFIRM{"Dual-Source Event\nConfirmation?"}
+        GEO_MATCH["Geofencing Service\nZone Matching"]
+        LOSS_CALC["Income Loss Engine\n(Expected Baseline - Actual Earnings)"]
+    end
+
+    subgraph L4["LAYER 4 — AI Decision & Fraud Guard"]
+        direction TB
+        FRAUD_EVAL["Fraud Score Evaluator\n(GPS Deviation + Device Reuse)"]
+        SHAP_EXPLAIN["SHAP Explainability Engine\n(Local Feature Risk Breakdown)"]
+        DECISION_GATE{"Auto-Approve\n/ Flag / Reject"}
+    end
+
+    subgraph L5["LAYER 5 — FastAPI Microservice & Instant Settlement"]
+        direction TB
+        FASTAPI["⚡ FastAPI REST Server\n/quote · /subscribe · /trigger · /claim"]
+        PAYOUT_SIM["Instant UPI / Razorpay Simulator\n(Automated UTR Generation)"]
+        NOTIFY["Twilio / WhatsApp / Push\nNotification Dispatcher"]
+    end
+
+    subgraph L6["LAYER 6 — CI/CT/CD & Drift Monitoring"]
+        direction TB
+        DRIFT_MONITOR["Data & Model Drift Monitor\n(Evidently AI / PSI Score Tracking)"]
+        GITHUB_ACTIONS[["⚙️ GitHub Actions CI/CT/CD\nAutomated Test ➔ Retrain ➔ Deploy"]]
+        DASHBOARDS["📊 Dual Interactive Web Dashboard\nWorker Protection View vs Admin Loss Ratio View"]
+    end
+
+    S1 --> DVC_PIPE
+    S2 --> DVC_PIPE
+    S3 --> DVC_PIPE
+    S4 --> DVC_PIPE
+
+    DVC_PIPE --> PREPROC
+    PREPROC --> TRAIN_PRICING
+    PREPROC --> TRAIN_FRAUD
+
+    TRAIN_PRICING --> MLFLOW
+    TRAIN_FRAUD --> MLFLOW
+
+    MLFLOW -->|"Deploys Model"| FASTAPI
+
+    WORKER -->|"Onboarding & Policy Quote"| FASTAPI
+    FASTAPI -->|"Calculates Dynamic Weekly Premium"| TRAIN_PRICING
+
+    S1 --> LIVE_MONITOR
+    LIVE_MONITOR --> CONFIRM
+    CONFIRM -->|"Verified ✓"| GEO_MATCH
+    GEO_MATCH --> LOSS_CALC
+    LOSS_CALC -->|"Calculates Loss"| FRAUD_EVAL
+
+    FRAUD_EVAL --> SHAP_EXPLAIN
+    SHAP_EXPLAIN --> DECISION_GATE
+
+    DECISION_GATE -->|"Approved (95%+)"| PAYOUT_SIM
+    PAYOUT_SIM -->|"Instant UPI Credit"| WORKER
+    PAYOUT_SIM --> NOTIFY
+
+    FASTAPI -->|"Inference Logs"| DRIFT_MONITOR
+    DRIFT_MONITOR -->|"Drift Threshold Exceeded"| GITHUB_ACTIONS
+    GITHUB_ACTIONS -->|"Triggers Continuous Retraining"| DVC_PIPE
+
+    FASTAPI --> DASHBOARDS
+    DRIFT_MONITOR --> DASHBOARDS
+    DASHBOARDS --> ADMIN
+        </pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' }
+    });
+  </script>
+</body>
+</html>

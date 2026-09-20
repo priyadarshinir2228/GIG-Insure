@@ -1,0 +1,56 @@
+stages:
+  collect_data:
+    cmd: C:\Users\ASUS\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\python.exe src/data/run_data_collection.py
+    deps:
+      - src/data/collect_environmental.py
+      - src/data/collect_worker.py
+      - src/data/collect_orders.py
+      - src/data/collect_claims.py
+      - src/data/run_data_collection.py
+    outs:
+      - data/raw/environmental/environmental_data.csv
+      - data/raw/worker/worker_population.csv
+      - data/raw/orders/platform_orders.csv
+      - data/raw/claims/claims_dataset.csv
+      - data/sources.md
+
+  preprocess:
+    cmd: C:\Users\ASUS\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\python.exe src/features/preprocess.py
+    deps:
+      - data/raw/environmental/environmental_data.csv
+      - data/raw/worker/worker_population.csv
+      - data/raw/orders/platform_orders.csv
+      - data/raw/claims/claims_dataset.csv
+      - src/features/preprocess.py
+    outs:
+      - data/processed/processed_environmental.csv
+      - data/processed/processed_workers.csv
+      - data/processed/processed_orders.csv
+      - data/processed/processed_claims.csv
+
+  feature_engineering:
+    cmd: C:\Users\ASUS\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\python.exe src/features/build_features.py
+    deps:
+      - data/processed/processed_environmental.csv
+      - data/processed/processed_workers.csv
+      - data/processed/processed_orders.csv
+      - data/processed/processed_claims.csv
+      - src/features/build_features.py
+    outs:
+      - data/processed/master_features.csv
+      - data/processed/pricing_dataset.csv
+      - data/processed/fraud_dataset.csv
+
+  train_models:
+    cmd: C:\Users\ASUS\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\python.exe src/models/run_stage3_pipeline.py
+    deps:
+      - data/processed/pricing_dataset.csv
+      - data/processed/fraud_dataset.csv
+      - src/models/train_pricing.py
+      - src/models/train_fraud.py
+      - src/models/run_stage3_pipeline.py
+    outs:
+      - models/pricing_feature_importance.png
+      - models/fraud_confusion_matrix.png
+      - models/fraud_feature_importance.png
+      - mlflow.db

@@ -1,0 +1,13 @@
+{
+  "evaluation_timestamp": "2026-09-17 16:51:41",
+  "pricing_model_metrics": {
+    "mae_inr": 0.0796,
+    "r2_score": 0.999866
+  },
+  "fraud_model_metrics": {
+    "f1_score": 1.0,
+    "roc_auc": 1.0
+  },
+  "drift_monitoring_status": "PASSED",
+  "mlflow_registry_status": "UPDATED_LATEST"
+}
