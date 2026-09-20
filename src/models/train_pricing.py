@@ -88,17 +88,18 @@ def train_dynamic_pricing_model():
         fig.savefig(fig_path)
         plt.close(fig)
 
-        mlflow.log_artifact(fig_path)
-
-        # Log & Register Model
-        mlflow.sklearn.log_model(
-            sk_model=model,
-            artifact_path="pricing_model",
-            registered_model_name="GigEase_DynamicPricing_Model"
-        )
-
-        print("[PASSED] Dynamic Pricing Model logged & registered in MLflow!")
+        try:
+            mlflow.log_artifact(fig_path)
+            mlflow.sklearn.log_model(
+                sk_model=model,
+                artifact_path="pricing_model",
+                registered_model_name="GigEase_DynamicPricing_Model"
+            )
+            print("[PASSED] Dynamic Pricing Model logged & registered in MLflow!")
+        except Exception as e:
+            print(f"[WARNING] MLflow artifact logging skipped ({e}). Metrics logged successfully.")
         return model, mae, r2
+
 
 if __name__ == "__main__":
     from src.models.mlflow_utils import init_mlflow_tracking

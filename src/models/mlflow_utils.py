@@ -4,7 +4,7 @@ import mlflow
 def init_mlflow_tracking():
     """Initializes MLflow tracking URI dynamically.
     Checks for DagsHub credentials / env vars, or custom MLFLOW_TRACKING_URI.
-    Defaults to local SQLite 'sqlite:///mlflow.db'.
+    Uses workspace file-based tracking in CI/GitHub Actions to avoid cross-platform path errors.
     """
     tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
     dagshub_owner = os.getenv("DAGSHUB_REPO_OWNER")
@@ -24,7 +24,12 @@ def init_mlflow_tracking():
             print(f"[WARNING] DagsHub init note ({e}). Falling back to configured tracking URI.")
 
     if not tracking_uri:
-        tracking_uri = "sqlite:///mlflow.db"
+        if os.getenv("GITHUB_ACTIONS") or os.getenv("CI"):
+            mlruns_dir = os.path.abspath("mlruns")
+            os.makedirs(mlruns_dir, exist_ok=True)
+            tracking_uri = f"file://{mlruns_dir}"
+        else:
+            tracking_uri = "sqlite:///mlflow.db"
 
     mlflow.set_tracking_uri(tracking_uri)
     print(f"[PASSED] MLflow Tracking URI initialized: {tracking_uri}")
