@@ -75,6 +75,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Lowercase Repository Name
+        id: string
+        run: |
+          echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
+
       - name: Build and Push Image to GitHub Packages
         uses: docker/build-push-action@v4
         with:
@@ -82,5 +87,5 @@ jobs:
           file: ./Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ steps.string.outputs.REPO_LC }}:latest
+            ghcr.io/${{ steps.string.outputs.REPO_LC }}:${{ github.sha }}
