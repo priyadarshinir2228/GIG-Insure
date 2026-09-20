@@ -53,10 +53,13 @@ jobs:
         run: |
           python src/models/monitor_drift.py
 
-  docker-build-check:
-    name: Container Build Verification
+  github-packages-publish:
+    name: Publish Container Image to GitHub Packages (GHCR)
     needs: mlops-ci-pipeline
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout Source Code
@@ -65,10 +68,19 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Build REST API Container Image
+      - name: Log in to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Image to GitHub Packages
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./Dockerfile
-          push: false
-          tags: gigease-api:latest
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
