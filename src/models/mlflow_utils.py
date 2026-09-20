@@ -2,31 +2,41 @@ import os
 import mlflow
 
 def init_mlflow_tracking():
-    """Initializes MLflow tracking URI dynamically.
-    Checks for DagsHub credentials / env vars, or custom MLFLOW_TRACKING_URI.
-    Uses workspace file-based tracking in CI/GitHub Actions to avoid cross-platform path errors.
+    """Initializes DagsHub Hosted MLflow Tracking & Automatic Logging dynamically.
+    DagsHub Repository: priyadarshinir.aids2024 / GIG-Insure
     """
     os.environ["MLFLOW_ALLOW_FILE_STORE"] = "true"
 
-    tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
-    dagshub_owner = os.getenv("DAGSHUB_REPO_OWNER")
-    dagshub_repo = os.getenv("DAGSHUB_REPO_NAME")
+    dagshub_owner = os.getenv("DAGSHUB_REPO_OWNER", "priyadarshinir.aids2024")
+    dagshub_repo = os.getenv("DAGSHUB_REPO_NAME", "GIG-Insure")
     dagshub_token = os.getenv("DAGSHUB_TOKEN")
 
-    if dagshub_owner and dagshub_repo:
-        try:
-            import dagshub
-            if dagshub_token:
-                os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
-                os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
-            dagshub.init(repo_owner=dagshub_owner, repo_name=dagshub_repo, mlflow=True)
-            print(f"[PASSED] DagsHub Hosted MLflow Tracking initialized for: https://dagshub.com/{dagshub_owner}/{dagshub_repo}.mlflow")
-            return mlflow.get_tracking_uri()
-        except Exception as e:
-            print(f"[WARNING] DagsHub init note ({e}). Falling back to configured tracking URI.")
+    # Step 1: Initialize DagsHub MLflow Connection
+    try:
+        import dagshub
+        if dagshub_token:
+            os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
+            os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
+        
+        dagshub.init(repo_owner=dagshub_owner, repo_name=dagshub_repo, mlflow=True)
+        print(f"[PASSED] DagsHub Hosted MLflow Tracking connected: https://dagshub.com/{dagshub_owner}/{dagshub_repo}.mlflow")
+    except Exception as e:
+        print(f"[NOTE] DagsHub auto-init note: ({e}). Falling back to MLflow tracking configuration.")
 
+    # Step 2: Enable MLflow Automatic Logging (mlflow.autolog)
+    try:
+        mlflow.autolog(log_models=True, disable=False, exclusive=False)
+        print("[PASSED] MLflow autologging enabled for Scikit-Learn, LightGBM, & XGBoost models!")
+    except Exception as e:
+        print(f"[WARNING] MLflow autologging note: {e}")
+
+    # Step 3: Fallback Tracking URI if DagsHub is unauthenticated/offline
+    tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
     if not tracking_uri:
-        if os.getenv("GITHUB_ACTIONS") or os.getenv("CI"):
+        current_uri = mlflow.get_tracking_uri()
+        if current_uri and "dagshub.com" in current_uri:
+            tracking_uri = current_uri
+        elif os.getenv("GITHUB_ACTIONS") or os.getenv("CI"):
             mlruns_dir = os.path.abspath("mlruns")
             os.makedirs(mlruns_dir, exist_ok=True)
             tracking_uri = f"file://{mlruns_dir}"
@@ -34,5 +44,5 @@ def init_mlflow_tracking():
             tracking_uri = "sqlite:///mlflow.db"
 
     mlflow.set_tracking_uri(tracking_uri)
-    print(f"[PASSED] MLflow Tracking URI initialized: {tracking_uri}")
+    print(f"[PASSED] Final Active MLflow Tracking URI: {tracking_uri}")
     return tracking_uri
