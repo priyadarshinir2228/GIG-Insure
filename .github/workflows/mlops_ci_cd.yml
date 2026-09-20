@@ -56,10 +56,12 @@ jobs:
   github-packages-publish:
     name: Publish Container Image to GitHub Packages (GHCR)
     needs: mlops-ci-pipeline
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+
 
     steps:
       - name: Checkout Source Code
