@@ -113,7 +113,24 @@ def run_pipeline():
     
     if all_exist:
         print("\n=== STAGE 1 DATA COLLECTION COMPLETE & VALIDATED! ===")
+        # Sync Datasets to DagsHub Data Tab
+        try:
+            import dagshub
+            dagshub_owner = os.getenv("DAGSHUB_REPO_OWNER", "priyadarshinir.aids2024")
+            dagshub_repo = os.getenv("DAGSHUB_REPO_NAME", "GIG-Insure")
+            dagshub.upload_files(
+                repo_owner=dagshub_owner,
+                repo_name=dagshub_repo,
+                local_path="data",
+                remote_path="data",
+                commit_message="Update GigEase raw & processed datasets"
+            )
+            print(f"[PASSED] Datasets uploaded to DagsHub Data Tab: https://dagshub.com/{dagshub_owner}/{dagshub_repo}/src/main/data")
+        except Exception as e:
+            print(f"[NOTE] DagsHub Data sync skipped ({e}). Datasets stored locally in data/")
+
         print("Ready to proceed to Stage 2: Data Preprocessing & Feature Engineering.")
+
 
 if __name__ == "__main__":
     run_pipeline()
