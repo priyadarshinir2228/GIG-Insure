@@ -14,6 +14,9 @@ jobs:
   mlops-ci-pipeline:
     name: Continuous Integration & Model Test Suite
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: .
+      MLFLOW_ALLOW_FILE_STORE: "true"
 
     steps:
       - name: Checkout Source Code
@@ -31,35 +34,24 @@ jobs:
           pip install -r requirements.txt
 
       - name: Execute Data Validation Pipeline (Stage 1)
-        env:
-          PYTHONPATH: .
         run: |
           python src/data/run_data_collection.py
 
       - name: Execute Feature Engineering Pipeline (Stage 2)
-        env:
-          PYTHONPATH: .
         run: |
           python src/features/run_stage2_pipeline.py
 
       - name: Run PyTest Automated Test Suite
-        env:
-          PYTHONPATH: .
         run: |
           pytest tests/ -v --tb=short
 
       - name: Execute Model Training & MLflow Logging (Stage 3)
-        env:
-          PYTHONPATH: .
         run: |
           python src/models/run_stage3_pipeline.py
 
       - name: Execute Drift Monitoring & Continuous Retraining Check (Stage 5)
-        env:
-          PYTHONPATH: .
         run: |
           python src/models/monitor_drift.py
-
 
   docker-build-check:
     name: Container Build Verification

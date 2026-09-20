@@ -6,6 +6,8 @@ def init_mlflow_tracking():
     Checks for DagsHub credentials / env vars, or custom MLFLOW_TRACKING_URI.
     Uses workspace file-based tracking in CI/GitHub Actions to avoid cross-platform path errors.
     """
+    os.environ["MLFLOW_ALLOW_FILE_STORE"] = "true"
+
     tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
     dagshub_owner = os.getenv("DAGSHUB_REPO_OWNER")
     dagshub_repo = os.getenv("DAGSHUB_REPO_NAME")
