@@ -10,6 +10,6 @@ dagshub>=0.7.2
 shap>=0.42.0,<1.0.0
 pytest>=9.1.1
 httpx>=0.28.1
-faker>=19.0.0
+faker>=40.39.0
 geopy>=2.5.0
 holidays>=0.104
