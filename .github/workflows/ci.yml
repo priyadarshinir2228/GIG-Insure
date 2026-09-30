@@ -1,7 +1,7 @@
 name: ci
 on:
   push:
-    branches: [develop, staging, main]
+    branches: [develop, staging, main, giginsure-platform]
   pull_request:
 
 jobs:
@@ -47,7 +47,7 @@ jobs:
 
   deploy-production:
     needs: container-smoke-test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/giginsure-platform')
     runs-on: ubuntu-latest
     environment: production   # add required reviewers in repo settings to make this a manual-approval gate
     steps:
