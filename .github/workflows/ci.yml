@@ -1,0 +1,64 @@
+name: ci
+on:
+  push:
+    branches: [develop, staging, main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.14" }
+      - run: pip install -r requirements.txt
+      - run: pytest -q --junitxml=test-results.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: junit, path: test-results.xml }
+
+  model-validation-gate:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.14" }
+      - run: pip install -r requirements.txt
+      - run: python scripts/run_pipeline.py
+      - run: python scripts/check_gate.py
+      - run: pytest -q tests/test_platform.py
+      - uses: actions/upload-artifact@v4
+        with: { name: pipeline-outputs, path: outputs/ }
+
+  container-smoke-test:
+    needs: model-validation-gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build --build-arg FAST=1 -t giginsure .
+      - name: Start container and check health + admin lock
+        run: |
+          docker run -d --name gi -p 8000:8000 -e GIGINSURE_ADMIN_TOKEN=ci-token giginsure
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8000/api/health && break; sleep 2; done
+          curl -sf http://127.0.0.1:8000/api/health
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{}' http://127.0.0.1:8000/api/admin/speed)" = 401
+          curl -sf -o /dev/null http://127.0.0.1:8000/admin
+
+  deploy-production:
+    needs: container-smoke-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: production   # add required reviewers in repo settings to make this a manual-approval gate
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Push to the Hugging Face Space (rebuilds and serves the new version)
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE: ${{ vars.HF_SPACE }}
+        run: |
+          if [ -z "$HF_TOKEN" ] || [ -z "$HF_SPACE" ]; then
+            echo "::warning::HF_TOKEN secret or HF_SPACE variable not set - skipping deploy"; exit 0
+          fi
+          git push --force "https://user:${HF_TOKEN}@huggingface.co/spaces/${HF_SPACE}" HEAD:main

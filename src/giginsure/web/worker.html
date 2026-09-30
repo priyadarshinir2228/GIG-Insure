@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GigInsure Partner</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="logo">GI</span><div><b>GigInsure</b><small>Partner app · income protection, paid automatically</small></div></div>
+  <div class="clock" id="clock"></div>
+</header>
+<main class="phone">
+  <div id="signin" class="card">
+    <div class="card-h"><h3>Open my cover</h3></div>
+    <div class="row"><input id="wid" type="text" placeholder="Partner ID, e.g. GW0001"><button class="btn" id="open" style="margin:0">Open</button></div>
+    <div class="err" id="open-err"></div>
+    <hr>
+    <div class="card-h"><h3>New partner? Get covered in 30 seconds</h3></div>
+    <label>Full name</label><input id="name" type="text" placeholder="Your name">
+    <label>I deliver for</label>
+    <select id="persona"><option value="food">Food (Zomato / Swiggy)</option><option value="qcom">Quick-commerce (Zepto / Blinkit)</option><option value="ecom">E-commerce (Amazon / Flipkart)</option></select>
+    <label>Main delivery zone</label><select id="zone"></select>
+    <label>UPI ID for payouts</label><input id="upi" type="text" placeholder="name@okaxis">
+    <div class="card" style="margin:12px 0 0" id="quote"></div>
+    <button class="btn primary" id="join">Buy this week's cover</button>
+    <div class="err" id="join-err"></div>
+    <p class="muted">Covers <b>lost income only</b> from heavy rain, severe pollution, extreme heat and curfews. No health, accident or vehicle cover. KYC is verified with a mock DigiLocker check.</p>
+  </div>
+
+  <div id="app" style="display:none">
+    <div class="hero">
+      <small id="h-name"></small>
+      <div class="big" id="h-protected"></div>
+      <small>earnings protected so far · paid automatically to <span id="h-upi"></span></small>
+    </div>
+    <div id="alert"></div>
+    <div class="card">
+      <div class="card-h"><h3>This week's cover</h3><span id="p-status"></span></div>
+      <div class="stats" id="cover"></div>
+      <div class="small muted" id="p-note"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>My zone right now</h3><span id="z-name" class="muted"></span></div>
+      <div id="zone-now"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Payouts &amp; claims</h3><span class="muted">no forms, ever</span></div>
+      <div class="list" id="claims"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Next week's price</h3></div>
+      <div id="next"></div>
+    </div>
+    <button class="btn" id="switch">Switch partner</button>
+  </div>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const inr = (v, d = 0) => "₹" + Number(v || 0).toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d });
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} } };
+const LABEL = { heavy_rain: "Heavy rain", severe_aqi: "Severe pollution", extreme_heat: "Extreme heat", curfew: "Curfew" };
+const DEC = { PAID: ["Paid", "good"], PAID_AFTER_REVIEW: ["Paid after check", "good"], HOLD_REVIEW: ["Being verified", "warn"], REJECTED_FRAUD: ["Not approved", "bad"], REJECT_DUPLICATE: ["Duplicate", "bad"], MONITORING: ["Disruption ongoing", "info"] };
+let current = store.get("gi_worker"), timer = null;
+
+async function loadZones() {
+  const zs = await fetch("/api/zones").then(r => r.json());
+  $("#zone").innerHTML = zs.map(z => `<option value="${z.id}">${esc(z.name)}</option>`).join("");
+  quote();
+}
+async function quote() {
+  const q = await fetch(`/api/quote?persona=${$("#persona").value}&zone_id=${$("#zone").value}`).then(r => r.json());
+  const adj = q.hyperlocal_adjustment;
+  $("#quote").innerHTML = `<div class="card-h"><h3>Your weekly price</h3><span class="chip info">AI priced · model v${q.model_version}</span></div>
+    <div class="stats"><div class="stat"><div class="v">${inr(q.premium, 2)}</div><div class="l">per week</div></div>
+    <div class="stat"><div class="v">${inr(q.max_weekly_payout)}</div><div class="l">max payout / week</div></div>
+    <div class="stat"><div class="v">${adj <= 0 ? "−" : "+"}${inr(Math.abs(adj), 2)}</div><div class="l">vs city average (${adj <= 0 ? "safer zone" : "flood-prone zone"})</div></div></div>
+    <div class="small muted">Forecast: rain ${q.forecast.rain_mm} mm, AQI ${q.forecast.aqi}, max ${q.forecast.temp_max} °C · expected ${q.expected_hours} disrupted hours</div>`;
+}
+["#persona", "#zone"].forEach(s => $(s).onchange = quote);
+
+$("#join").onclick = async () => {
+  $("#join-err").textContent = "";
+  const r = await fetch("/api/workers", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: $("#name").value, persona: $("#persona").value, zone_id: +$("#zone").value, upi: $("#upi").value }) });
+  const j = await r.json();
+  if (!r.ok) return $("#join-err").textContent = j.error;
+  open(j.worker.worker_id);
+};
+$("#open").onclick = () => open($("#wid").value.trim().toUpperCase());
+$("#switch").onclick = () => { store.set("gi_worker", null); current = null; clearTimeout(timer); $("#app").style.display = "none"; $("#signin").style.display = ""; };
+
+async function open(id) {
+  const r = await fetch(`/api/workers/${encodeURIComponent(id)}`);
+  if (!r.ok) return $("#open-err").textContent = "Partner ID not found";
+  current = id; store.set("gi_worker", id);
+  $("#signin").style.display = "none"; $("#app").style.display = "";
+  render(await r.json());
+}
+
+function render(v) {
+  const w = v.worker, p = v.active_policy, z = v.zone;
+  $("#clock").textContent = `policy week ${v.clock.week_no} · ${v.clock.day} ${String(v.clock.hour).padStart(2, "0")}:00`;
+  $("#h-name").textContent = `${w.name} · ${w.worker_id} · ${w.persona}`;
+  $("#h-protected").textContent = inr(v.protected_total, 2);
+  $("#h-upi").textContent = w.upi;
+  $("#alert").innerHTML = z.fired.length ? `<div class="alert"><b>${z.fired.map(t => LABEL[t] || t).join(" + ")} in ${esc(z.name)}.</b><br>You are covered. Your lost income will be paid to your UPI automatically when the disruption ends — no claim needed.</div>` : "";
+  $("#p-status").innerHTML = p ? `<span class="chip good">ACTIVE</span>` : `<span class="chip bad">NONE</span>`;
+  $("#cover").innerHTML = p ? [["weekly premium", inr(p.premium, 2)], ["paid this week", inr(v.paid_this_week, 2)], ["cover left", inr(v.remaining_cover)]]
+    .map(([l, x]) => `<div class="stat"><div class="v">${x}</div><div class="l">${l}</div></div>`).join("") : "";
+  $("#p-note").textContent = p ? `Pays 70% of lost hourly earnings (₹${w.hourly_rate}/h) during verified disruptions, up to ${inr(p.max_weekly_payout)} a week. Priced by ML model v${p.model_version}. Premiums paid so far ${inr(v.premiums_paid, 2)}.` : "";
+  $("#z-name").textContent = `${z.name} · flood risk ${z.flood_score}`;
+  $("#zone-now").innerHTML = z.rain == null ? "<span class='muted'>waiting for sensor data…</span>" : `<div class="stats">
+    <div class="stat"><div class="v">${z.rain.toFixed(1)}</div><div class="l">rain mm/hr (pays above 50)</div></div>
+    <div class="stat"><div class="v">${Math.round(z.aqi)}</div><div class="l">AQI (pays above 400)</div></div>
+    <div class="stat"><div class="v">${z.temp.toFixed(1)}°</div><div class="l">temp (pays above 42°)</div></div></div>`;
+  $("#claims").innerHTML = v.claims.length ? v.claims.map(c => { const [t, k] = DEC[c.decision] || [c.decision, ""];
+    return `<div class="it"><span>${c.triggers.split(",").map(t => LABEL[t] || t).join(" + ")}<br><span class="muted">${esc(c.event_id)} · ${c.lost_hours ? c.lost_hours.toFixed(1) + " h lost" : "in progress"} · ${esc(c.updated_at || "")}</span></span>
+      <span class="r"><b>${c.amount ? inr(c.amount, 2) : ""}</b><br><span class="chip ${k}">${t}</span></span></div>`; }).join("") : `<span class="muted">No disruptions yet this cover period.</span>`;
+  const q = v.next_week_quote;
+  $("#next").innerHTML = `<div class="stats"><div class="stat"><div class="v">${inr(q.premium, 2)}</div><div class="l">next week</div></div><div class="stat"><div class="v">${q.expected_hours} h</div><div class="l">forecast disrupted hours</div></div></div>
+    <div class="small muted">Re-priced every week from the weather forecast and your zone's recent disruption history.</div>`;
+  clearTimeout(timer);
+  timer = setTimeout(async () => { if (!current) return; const r = await fetch(`/api/workers/${encodeURIComponent(current)}`); if (r.ok) render(await r.json()); }, 3000);
+}
+
+loadZones();
+const linked = new URLSearchParams(location.search).get("id");  // e.g. /worker?id=GW0006
+if (linked || current) open(linked || current);
+</script>
+</body>
+</html>

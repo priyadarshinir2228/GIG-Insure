@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GigInsure Admin</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="logo">GI</span><div><b>GigInsure</b><small>Insurer admin · parametric income protection</small></div></div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="ops">Live operations</button>
+    <button class="tab" data-tab="ml">Model performance (MLOps)</button>
+    <a class="tab" href="/worker" target="_blank">Worker app ↗</a>
+  </nav>
+  <div class="clock" id="clock">…</div>
+</header>
+
+<main>
+<!-- ============================================================ LIVE OPS -->
+<section id="tab-ops" class="tabpane active">
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid g-3-1">
+    <div class="card">
+      <div class="card-h"><h3>Zones · real-time parametric trigger monitor</h3><span class="muted" id="thr-note">thresholds: rain &gt; 50 mm/hr · AQI &gt; 400 · temp &gt; 42 °C · curfew flag</span></div>
+      <div class="zones" id="zones"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Disruption simulator</h3></div>
+      <label>Zones</label>
+      <select id="sim-zones" multiple size="5"></select>
+      <label>Scenario</label>
+      <select id="sim-kind">
+        <option value="rainstorm">Heavy rainstorm (&gt;50 mm/hr)</option>
+        <option value="aqi">Severe AQI (&gt;400)</option>
+        <option value="heatwave">Extreme heat (&gt;42 °C)</option>
+        <option value="curfew">Curfew / zone closure</option>
+      </select>
+      <div class="row"><div><label>Duration (h)</label><input id="sim-hours" type="number" min="1" max="10" value="4"></div>
+        <label class="chk"><input id="sim-fraud" type="checkbox"> inject fraud ring</label></div>
+      <button class="btn primary" id="sim-go">Trigger disruption</button>
+      <div class="row gap">
+        <button class="btn" data-ff="6">+6 h</button><button class="btn" data-ff="24">+1 day</button><button class="btn" data-ff="168">+1 week</button>
+      </div>
+      <label>Speed (sec per simulated hour)</label>
+      <div class="row"><input id="speed" type="range" min="0.5" max="10" step="0.5" value="3"><span id="speed-v">3s</span></div>
+      <hr>
+      <div class="card-h"><h3>Models in production</h3></div>
+      <div id="models" class="small"></div>
+      <button class="btn" id="retrain">Retrain now (fast pipeline)</button>
+    </div>
+  </div>
+
+  <div class="grid g-2">
+    <div class="card"><div class="card-h"><h3>Premiums collected vs payouts (cumulative ₹)</h3><span class="muted" id="lr-note"></span></div><div class="chart"><canvas id="c-money"></canvas></div></div>
+    <div class="card"><div class="card-h"><h3>City sensor maxima vs trigger thresholds</h3></div><div class="chart"><canvas id="c-env"></canvas></div></div>
+  </div>
+
+  <div class="grid g-2-1">
+    <div class="card">
+      <div class="card-h"><h3>Zero-touch claims · AI fraud screening &amp; instant payout</h3><span class="muted">score ≥ threshold → held for review</span></div>
+      <div class="tablewrap tall"><table id="claims"><thead><tr><th>#</th><th>Worker</th><th>Zone</th><th>Event</th><th>Lost h</th><th>Fraud score</th><th>Signals</th><th>Decision</th><th class="r">Amount</th><th>Txn</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Live fraud monitor</h3></div>
+      <div id="livefraud" class="stats"></div>
+      <div class="card-h"><h3>Review queue</h3></div>
+      <div id="held" class="small"></div>
+      <div class="card-h"><h3>Live data drift (PSI vs seasonal reference)</h3></div>
+      <div id="livedrift" class="stats"></div>
+    </div>
+  </div>
+
+  <div class="grid g-2">
+    <div class="card">
+      <div class="card-h"><h3>Next week · predictive analytics</h3><span class="muted" id="fc-note"></span></div>
+      <div class="chart"><canvas id="c-forecast"></canvas></div>
+      <div class="tablewrap"><table id="forecast"><thead><tr><th>Zone</th><th>Flood</th><th>Workers</th><th>Food</th><th>Q-com</th><th>E-com</th><th>Exp. lost h</th><th class="r">Exp. claims</th><th>Risk</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Disruption events</h3><span class="muted">Replay = resubmit all claims → duplicate guard test</span></div>
+      <div class="tablewrap"><table id="events"><thead><tr><th>Event</th><th>Zone</th><th>Triggers</th><th>Hours</th><th>Severity</th><th>Claims</th><th class="r">Paid</th><th>Status</th><th></th></tr></thead><tbody></tbody></table></div>
+      <div class="card-h"><h3>Zone loss ratios</h3></div>
+      <div class="chart short"><canvas id="c-lr"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>Platform event log</h3><span class="muted">mirrors the server terminal</span></div>
+    <pre class="term" id="log"></pre>
+  </div>
+</section>
+
+<!-- ============================================================ ML -->
+<section id="tab-ml" class="tabpane">
+  <div class="card banner" id="ml-banner"></div>
+  <div class="grid g-2">
+    <div class="card"><div class="card-h"><h3>CI evaluation gate</h3></div><div class="tablewrap"><table id="gate"><thead><tr><th>Check</th><th>Threshold</th><th class="r">Measured</th><th>Result</th></tr></thead><tbody></tbody></table></div></div>
+    <div class="card"><div class="card-h"><h3>Model registry</h3></div><div class="tablewrap"><table id="registry"><thead><tr><th>Model</th><th>Ver.</th><th>Stage</th><th>Key metric</th><th>Created</th></tr></thead><tbody></tbody></table></div>
+      <div class="card-h"><h3>Performance benchmarks</h3></div><div id="perf" class="stats"></div></div>
+  </div>
+
+  <h2 class="sec">Dynamic weekly premium model</h2>
+  <div class="grid g-2">
+    <div class="card"><div class="card-h"><h3>Model comparison (₹ MAE, lower is better)</h3></div><div class="chart"><canvas id="c-models"></canvas></div>
+      <div class="tablewrap"><table id="pricing"><thead><tr><th>Model</th><th class="r">CV MAE</th><th class="r">Test MAE</th><th class="r">RMSE</th><th class="r">R²</th><th class="r">MAPE %</th><th class="r">±₹2 %</th></tr></thead><tbody></tbody></table></div></div>
+    <div class="card"><div class="card-h"><h3>Predicted vs actual weekly premium (test weeks 104–129)</h3></div><div class="chart"><canvas id="c-scatter"></canvas></div>
+      <div class="tablewrap"><table id="persona"><thead><tr><th>Persona</th><th class="r">MAE</th><th class="r">RMSE</th><th class="r">R²</th><th class="r">±₹2 %</th></tr></thead><tbody></tbody></table></div></div>
+  </div>
+  <div class="grid g-2">
+    <div class="card"><div class="card-h"><h3>Hyper-parameter search (temporal CV MAE)</h3></div><div class="chart"><canvas id="c-tuning"></canvas></div></div>
+    <div class="card"><div class="card-h"><h3>Permutation feature importance (champion)</h3></div><div class="chart"><canvas id="c-imp"></canvas></div></div>
+  </div>
+
+  <h2 class="sec">AI fraud detection</h2>
+  <div class="grid g-3">
+    <div class="card"><div class="card-h"><h3>ROC curve</h3></div><div class="chart"><canvas id="c-roc"></canvas></div></div>
+    <div class="card"><div class="card-h"><h3>Precision–recall curve</h3></div><div class="chart"><canvas id="c-pr"></canvas></div></div>
+    <div class="card"><div class="card-h"><h3>Confusion matrix &amp; recall by fraud type</h3></div><div id="cm"></div></div>
+  </div>
+  <div class="card"><div class="tablewrap"><table id="fraudtbl"><thead><tr><th>Detector</th><th class="r">Precision</th><th class="r">Recall</th><th class="r">F1</th><th class="r">ROC-AUC</th><th class="r">PR-AUC</th><th class="r">FPR</th></tr></thead><tbody></tbody></table></div></div>
+
+  <h2 class="sec">Parametric triggers &amp; drift monitoring</h2>
+  <div class="grid g-2">
+    <div class="card"><div class="card-h"><h3>Trigger detection vs ground truth (noisy sensors)</h3></div><div class="chart"><canvas id="c-trig"></canvas></div></div>
+    <div class="card"><div class="card-h"><h3>Concept drift · weekly MAE, champion/challenger retraining</h3></div><div class="chart"><canvas id="c-concept"></canvas></div><div class="small" id="concept-note"></div></div>
+  </div>
+  <div class="card"><div class="card-h"><h3>Data drift · PSI per feature (seasonally matched reference)</h3></div><div class="tablewrap"><table id="psi"></table></div></div>
+</section>
+</main>
+
+<script src="/static/admin.js"></script>
+</body>
+</html>
