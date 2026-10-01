@@ -790,14 +790,12 @@ HLD Doc: https://drive.google.com/file/d/1gKdPuO2ObIksVcTeWASy1Fr8-T48VCzf/view?
 | Pool | Aggregate of all premiums, held in segregated fund from which claims are paid |
 | NACH | National Automated Clearing House — RBI mechanism for automated bank debit mandates |
 
-### 13.4 Team
+### 13.4 BY
 
 | Name | Track |
 |---|---|
-| Abijith U | DevTrails2026 |
-| Tarun Aadarsh B | DevTrails2026 |
 | Priyadarshini R | DevTrails2026 |
-| Monish M | DevTrails2026 |
+
 
 ---
 
